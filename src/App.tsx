@@ -77,11 +77,28 @@ export default function App() {
   const extractFMEADetails = async (text: string) => {
     setIsExtracting(true);
     try {
-      // ตรวจสอบ API Key จากหลายแหล่ง (Vite define หรือ import.meta.env)
-      const apiKey = process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
+      // ตรวจสอบ API Key จากหลายแหล่ง
+      let apiKey = "";
+      
+      // 1. ลองดึงจาก process.env (ที่ถูก define ไว้ใน vite.config.ts)
+      try {
+        apiKey = process.env.GEMINI_API_KEY || "";
+      } catch (e) {
+        console.warn("process.env.GEMINI_API_KEY not available");
+      }
+
+      // 2. ลองดึงจาก import.meta.env (มาตรฐาน Vite)
+      if (!apiKey || apiKey === "undefined" || apiKey === "") {
+        apiKey = (import.meta.env.VITE_GEMINI_API_KEY as string) || "";
+      }
+
+      // 3. ลองดึงจาก window._env_ (เผื่อกรณีระบบฉีดค่าเข้า window)
+      if (!apiKey || apiKey === "undefined" || apiKey === "") {
+        apiKey = (window as any)._env_?.GEMINI_API_KEY || (window as any)._env_?.VITE_GEMINI_API_KEY || "";
+      }
       
       if (!apiKey || apiKey === "undefined" || apiKey === "") {
-        throw new Error("ไม่พบ GEMINI_API_KEY ในระบบ กรุณาตรวจสอบว่าได้ใส่ Key ในเมนู Secrets และตั้งชื่อว่า GEMINI_API_KEY หรือ VITE_GEMINI_API_KEY เรียบร้อยแล้ว");
+        throw new Error("ระบบยังมองไม่เห็น API Key ของคุณครับ รบกวนกดปุ่ม 'Refresh' ที่เบราว์เซอร์อีกครั้ง หากยังไม่ได้ ให้ลองลบ Secret เดิมแล้วสร้างใหม่โดยใช้ชื่อ VITE_GEMINI_API_KEY (ตัวใหญ่ทั้งหมด) ครับ");
       }
       
       const ai = new GoogleGenAI({ apiKey });
@@ -139,10 +156,21 @@ export default function App() {
     setErrorMsg('');
 
     try {
-      const apiKey = process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
+      let apiKey = "";
+      try {
+        apiKey = process.env.GEMINI_API_KEY || "";
+      } catch (e) {}
+
+      if (!apiKey || apiKey === "undefined" || apiKey === "") {
+        apiKey = (import.meta.env.VITE_GEMINI_API_KEY as string) || "";
+      }
+
+      if (!apiKey || apiKey === "undefined" || apiKey === "") {
+        apiKey = (window as any)._env_?.GEMINI_API_KEY || (window as any)._env_?.VITE_GEMINI_API_KEY || "";
+      }
       
       if (!apiKey || apiKey === "undefined" || apiKey === "") {
-        throw new Error("ไม่พบ GEMINI_API_KEY ในระบบ กรุณาตรวจสอบว่าได้ใส่ Key ในเมนู Secrets และตั้งชื่อว่า GEMINI_API_KEY หรือ VITE_GEMINI_API_KEY เรียบร้อยแล้ว");
+        throw new Error("ระบบยังมองไม่เห็น API Key ของคุณครับ รบกวนกดปุ่ม 'Refresh' ที่เบราว์เซอร์อีกครั้ง หากยังไม่ได้ ให้ลองลบ Secret เดิมแล้วสร้างใหม่โดยใช้ชื่อ VITE_GEMINI_API_KEY (ตัวใหญ่ทั้งหมด) ครับ");
       }
       
       const ai = new GoogleGenAI({ apiKey });
