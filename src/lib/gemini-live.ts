@@ -12,6 +12,7 @@ export function useGeminiLive() {
   const [isInterrupted, setIsInterrupted] = useState(false);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [liveError, setLiveError] = useState<string | null>(null);
+  const [selectedVoice, setSelectedVoice] = useState<string>("Kore");
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -81,7 +82,7 @@ export function useGeminiLive() {
         config: {
           responseModalities: [Modality.AUDIO],
           speechConfig: {
-            voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } },
+            voiceConfig: { prebuiltVoiceConfig: { voiceName: selectedVoice } },
           },
           systemInstruction: "คุณคือผู้ช่วย AI ที่เป็นมิตร สุภาพ และมีบุคลิกที่น่ารัก อบอุ่น เหมือนมนุษย์จริงๆ คุณสามารถมองเห็นหน้าจอของผู้ใช้ได้หากพวกเขาแชร์หน้าจอ ให้ตอบโต้ด้วยน้ำเสียงที่นุ่มนวล เป็นกันเอง และใช้คำลงท้ายที่ดูสุภาพและน่ารัก (เช่น ค่ะ, นะคะ) ตอบอย่างเป็นธรรมชาติและกระชับ",
           inputAudioTranscription: {},
@@ -221,6 +222,8 @@ export function useGeminiLive() {
     stopLive,
     toggleScreenShare,
     transcript,
-    liveError
+    liveError,
+    selectedVoice,
+    setSelectedVoice
   };
 }

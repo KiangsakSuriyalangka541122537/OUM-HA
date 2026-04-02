@@ -47,7 +47,9 @@ export default function App() {
     stopLive,
     toggleScreenShare,
     transcript,
-    liveError
+    liveError,
+    selectedVoice,
+    setSelectedVoice
   } = useGeminiLive();
 
   const [processText, setProcessText] = useState('');
@@ -895,6 +897,39 @@ export default function App() {
                     {isConnected ? "LIVE" : "OFFLINE"}
                   </div>
                 </div>
+
+                {/* Voice Selector */}
+                {!isConnected && (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[10px] font-bold text-brand-rose-brown uppercase tracking-wider">เลือกโทนเสียง (Voice Tone)</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { id: 'Kore', label: 'น้องโกเระ', desc: 'ผู้หญิง/น่ารัก' },
+                        { id: 'Zephyr', label: 'เซเฟอร์', desc: 'ผู้ชาย/สุขุม' },
+                        { id: 'Puck', label: 'ปั๊ค', desc: 'ผู้ชาย/สดใส' },
+                        { id: 'Charon', label: 'คารอน', desc: 'ผู้ชาย/ทุ้ม' },
+                        { id: 'Fenrir', label: 'เฟนริล', desc: 'ผู้ชาย/เข้ม' },
+                      ].map((voice) => (
+                        <button
+                          key={voice.id}
+                          onClick={() => setSelectedVoice(voice.id)}
+                          className={cn(
+                            "flex flex-col items-center p-2 rounded-xl border transition-all text-center",
+                            selectedVoice === voice.id 
+                              ? "bg-brand-rose-deep text-white border-brand-rose-deep shadow-md scale-105" 
+                              : "bg-white text-gray-600 border-gray-100 hover:border-brand-rose-muted"
+                          )}
+                        >
+                          <span className="text-[11px] font-bold">{voice.label}</span>
+                          <span className={cn(
+                            "text-[8px]",
+                            selectedVoice === voice.id ? "text-white/80" : "text-gray-400"
+                          )}>{voice.desc}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Live Controls */}
                 <div className="flex flex-col items-center justify-center p-8 bg-brand-off-white/50 rounded-3xl border border-brand-pale-pink/30 relative overflow-hidden">
