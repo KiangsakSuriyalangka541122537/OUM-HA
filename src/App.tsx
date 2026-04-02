@@ -54,6 +54,8 @@ export default function App() {
   const [failureModeText, setFailureModeText] = useState('');
   const [reportData, setReportData] = useState<ReportData | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
+  const [manualApiKey, setManualApiKey] = useState<string>(localStorage.getItem('manual_gemini_api_key') || '');
+  const [showManualInput, setShowManualInput] = useState<boolean>(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
   const [showAssistant, setShowAssistant] = useState(false);
@@ -74,31 +76,32 @@ export default function App() {
     setFailureModeText(random.failureMode);
   };
 
+  const getApiKey = () => {
+    // 1. Check manual input first
+    if (manualApiKey && manualApiKey.trim().startsWith('AIza')) return manualApiKey.trim();
+    
+    // 2. Check process.env (from vite define)
+    let apiKey = "";
+    try {
+      apiKey = process.env.GEMINI_API_KEY || "";
+    } catch (e) {}
+
+    // 3. Check import.meta.env
+    if (!apiKey || apiKey === "undefined" || apiKey === "") {
+      apiKey = (import.meta.env.VITE_GEMINI_API_KEY as string) || "";
+    }
+
+    return apiKey;
+  };
+
   const extractFMEADetails = async (text: string) => {
     setIsExtracting(true);
     try {
-      // ตรวจสอบ API Key จากหลายแหล่ง
-      let apiKey = "";
-      
-      // 1. ลองดึงจาก process.env (ที่ถูก define ไว้ใน vite.config.ts)
-      try {
-        apiKey = process.env.GEMINI_API_KEY || "";
-      } catch (e) {
-        console.warn("process.env.GEMINI_API_KEY not available");
-      }
-
-      // 2. ลองดึงจาก import.meta.env (มาตรฐาน Vite)
-      if (!apiKey || apiKey === "undefined" || apiKey === "") {
-        apiKey = (import.meta.env.VITE_GEMINI_API_KEY as string) || "";
-      }
-
-      // 3. ลองดึงจาก window._env_ (เผื่อกรณีระบบฉีดค่าเข้า window)
-      if (!apiKey || apiKey === "undefined" || apiKey === "") {
-        apiKey = (window as any)._env_?.GEMINI_API_KEY || (window as any)._env_?.VITE_GEMINI_API_KEY || "";
-      }
+      const apiKey = getApiKey();
       
       if (!apiKey || apiKey === "undefined" || apiKey === "") {
-        throw new Error("ระบบยังมองไม่เห็น API Key ของคุณครับ รบกวนกดปุ่ม 'Refresh' ที่เบราว์เซอร์อีกครั้ง หากยังไม่ได้ ให้ลองลบ Secret เดิมแล้วสร้างใหม่โดยใช้ชื่อ VITE_GEMINI_API_KEY (ตัวใหญ่ทั้งหมด) ครับ");
+        setShowManualInput(true);
+        throw new Error("ระบบยังมองไม่เห็น API Key อัตโนมัติครับ รบกวนลองใส่ Key เองที่ช่องด้านล่าง หรือกด Refresh อีกครั้งครับ");
       }
       
       const ai = new GoogleGenAI({ apiKey });
@@ -156,21 +159,11 @@ export default function App() {
     setErrorMsg('');
 
     try {
-      let apiKey = "";
-      try {
-        apiKey = process.env.GEMINI_API_KEY || "";
-      } catch (e) {}
-
-      if (!apiKey || apiKey === "undefined" || apiKey === "") {
-        apiKey = (import.meta.env.VITE_GEMINI_API_KEY as string) || "";
-      }
-
-      if (!apiKey || apiKey === "undefined" || apiKey === "") {
-        apiKey = (window as any)._env_?.GEMINI_API_KEY || (window as any)._env_?.VITE_GEMINI_API_KEY || "";
-      }
+      const apiKey = getApiKey();
       
       if (!apiKey || apiKey === "undefined" || apiKey === "") {
-        throw new Error("ระบบยังมองไม่เห็น API Key ของคุณครับ รบกวนกดปุ่ม 'Refresh' ที่เบราว์เซอร์อีกครั้ง หากยังไม่ได้ ให้ลองลบ Secret เดิมแล้วสร้างใหม่โดยใช้ชื่อ VITE_GEMINI_API_KEY (ตัวใหญ่ทั้งหมด) ครับ");
+        setShowManualInput(true);
+        throw new Error("ระบบยังมองไม่เห็น API Key อัตโนมัติครับ รบกวนลองใส่ Key เองที่ช่องด้านล่าง หรือกด Refresh อีกครั้งครับ");
       }
       
       const ai = new GoogleGenAI({ apiKey });
@@ -640,8 +633,46 @@ export default function App() {
             </div>
             
             {errorMsg && (
-              <div className="mt-4 p-4 bg-red-50 text-red-600 rounded-xl text-sm border border-red-100">
-                {errorMsg}
+              <div className="mt-4 p-4 bg-red-50 text-red-600 rounded-xl text-sm border border-red-100 shadow-sm animate-in fade-in slide-in-from-top-2">
+                <div className="flex items-start gap-2">
+                  <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    {errorMsg}
+                    
+                    {showManualInput && (
+                      <div className="mt-3 p-4 bg-white rounded-xl border border-red-200 shadow-inner">
+                        <p className="font-bold mb-2 text-red-700 flex items-center gap-2">
+                          <Settings className="w-4 h-4" />
+                          วิธีแก้ปัญหาด่วน: วาง API Key ของคุณที่นี่
+                        </p>
+                        <div className="flex gap-2">
+                          <input 
+                            type="password" 
+                            placeholder="วาง API Key (ขึ้นต้นด้วย AIza...)" 
+                            className="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-rose-deep/30 transition-all"
+                            value={manualApiKey}
+                            onChange={(e) => {
+                              setManualApiKey(e.target.value);
+                              localStorage.setItem('manual_gemini_api_key', e.target.value);
+                            }}
+                          />
+                          <button 
+                            onClick={() => {
+                              setErrorMsg('');
+                              setShowManualInput(false);
+                            }}
+                            className="px-4 py-2 bg-brand-rose-deep text-white rounded-lg font-bold hover:bg-brand-rose-brown transition-all shadow-md active:scale-95"
+                          >
+                            ตกลง
+                          </button>
+                        </div>
+                        <p className="mt-2 text-[10px] text-gray-400 italic">
+                          * ระบบจะจำ Key นี้ไว้ในเบราว์เซอร์ของคุณ ไม่ต้องใส่ซ้ำในครั้งหน้าครับ
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
           </div>
