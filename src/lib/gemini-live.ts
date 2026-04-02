@@ -64,13 +64,13 @@ export function useGeminiLive() {
     setIsScreenSharing(false);
   }, []);
 
-  const startLive = useCallback(async () => {
+  const startLive = useCallback(async (apiKey: string) => {
     if (isConnecting) return;
     setIsConnecting(true);
     setLiveError(null);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+      const ai = new GoogleGenAI({ apiKey });
       
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({
         sampleRate: SAMPLE_RATE,

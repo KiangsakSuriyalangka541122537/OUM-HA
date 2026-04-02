@@ -923,7 +923,15 @@ export default function App() {
                     )}
                     {!isConnected ? (
                       <button 
-                        onClick={startLive}
+                        onClick={() => {
+                          const key = getApiKey();
+                          if (!key) {
+                            setShowManualInput(true);
+                            setErrorMsg("ระบบยังมองไม่เห็น API Key อัตโนมัติครับ รบกวนลองใส่ Key เองที่ช่องด้านล่าง หรือกด Refresh อีกครั้งครับ");
+                            return;
+                          }
+                          startLive(key);
+                        }}
                         disabled={isConnecting}
                         className="btn-primary w-full justify-center"
                       >
