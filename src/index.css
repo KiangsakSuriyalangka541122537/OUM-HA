@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-brand-cream: #F1E5D1;
+  --color-brand-pink-light: #DBB5B5;
+  --color-brand-rose-muted: #C39898;
+  --color-brand-rose-brown: #987070;
+  --color-brand-rose-deep: #825151;
+  --color-brand-off-white: #F5EBEB;
+  --color-brand-pale-pink: #E4D0D0;
+  --color-brand-soft-pink: #D5B4B4;
+  --color-brand-grey-brown: #867070;
+  --color-brand-dark-brown: #594646;
+
+  --font-sans: "Anuphan", "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-brand-off-white text-brand-dark-brown font-sans;
+  }
+}
+
+.glass-panel {
+  @apply bg-white/40 backdrop-blur-md border border-white/20 shadow-xl;
+}
+
+.btn-primary {
+  @apply bg-brand-rose-deep hover:bg-brand-dark-brown text-white px-6 py-3 rounded-full transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-brand-rose-deep/20 active:scale-95;
+}
+
+.btn-secondary {
+  @apply bg-brand-cream hover:bg-brand-pale-pink text-brand-dark-brown px-6 py-3 rounded-full transition-all duration-300 flex items-center gap-2 shadow-md active:scale-95;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+.pulse-ring {
+  animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+}

@@ -1,0 +1,9 @@
+{
+  "name": "PGH AI-Assisted FMEA Risk-to-Action Navigator",
+  "description": "Turning Risk Analysis into Preventive Action. A specialized tool for healthcare FMEA analysis with AI-powered report generation and real-time assistance.",
+  "requestFramePermissions": [
+    "microphone",
+    "camera",
+    "display-capture"
+  ]
+}
