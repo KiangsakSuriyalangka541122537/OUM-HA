@@ -77,7 +77,11 @@ export default function App() {
   const extractFMEADetails = async (text: string) => {
     setIsExtracting(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        throw new Error("ไม่พบ GEMINI_API_KEY กรุณาตรวจสอบการตั้งค่าใน Settings");
+      }
+      const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
         contents: `จากข้อความต่อไปนี้ กรุณาสรุป "กระบวนการ (Process)" และ "รูปแบบความล้มเหลว (Failure Mode)" ที่สำคัญที่สุดออกมาในรูปแบบ JSON:
@@ -132,7 +136,11 @@ export default function App() {
     setErrorMsg('');
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        throw new Error("ไม่พบ GEMINI_API_KEY กรุณาตรวจสอบการตั้งค่าใน Settings");
+      }
+      const ai = new GoogleGenAI({ apiKey });
       
       const reportSchema = {
         type: Type.OBJECT,
