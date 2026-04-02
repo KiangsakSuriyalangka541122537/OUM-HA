@@ -516,7 +516,8 @@ export default function App() {
                   value={processText}
                   onChange={(e) => setProcessText(e.target.value)}
                   placeholder="เช่น การจำหน่ายผู้ป่วย (Discharge Planning)"
-                  className="w-full h-32 p-4 rounded-2xl bg-white/50 border border-brand-pale-pink focus:border-brand-rose-muted focus:ring-2 focus:ring-brand-rose-muted/20 outline-none transition-all resize-none text-sm"
+                  className="w-full h-32 p-4 rounded-2xl bg-white/50 border border-brand-pale-pink focus:border-brand-rose-muted focus:ring-2 focus:ring-brand-rose-muted/20 outline-none transition-all resize-none text-sm cursor-text text-brand-dark-brown caret-brand-rose-deep"
+                  style={{ cursor: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' style=\'fill:black;stroke:white;stroke-width:1px;\'><text y=\'18\' font-family=\'serif\' font-size=\'20\'>I</text></svg>"), text' }}
                 />
               </div>
               <div className="flex flex-col gap-3">
@@ -534,7 +535,8 @@ export default function App() {
                   value={failureModeText}
                   onChange={(e) => setFailureModeText(e.target.value)}
                   placeholder="เช่น ผู้ป่วยได้รับใบนัดผิดวันและไม่ได้รับยาเบาหวานกลับบ้าน"
-                  className="w-full h-32 p-4 rounded-2xl bg-white/50 border border-brand-pale-pink focus:border-brand-rose-muted focus:ring-2 focus:ring-brand-rose-muted/20 outline-none transition-all resize-none text-sm"
+                  className="w-full h-32 p-4 rounded-2xl bg-white/50 border border-brand-pale-pink focus:border-brand-rose-muted focus:ring-2 focus:ring-brand-rose-muted/20 outline-none transition-all resize-none text-sm cursor-text text-brand-dark-brown caret-brand-rose-deep"
+                  style={{ cursor: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' style=\'fill:black;stroke:white;stroke-width:1px;\'><text y=\'18\' font-family=\'serif\' font-size=\'20\'>I</text></svg>"), text' }}
                 />
               </div>
             </div>
