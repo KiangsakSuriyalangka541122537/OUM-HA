@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mic, MicOff, Monitor, MonitorOff, StopCircle, Play, MessageSquare, Settings, Info, Sparkles, FileText, Lightbulb, Download, Image as ImageIcon, ChevronRight, ChevronDown, Trash2, X, Upload, FileUp, Database, CheckCircle2 } from 'lucide-react';
+import { Mic, MicOff, Monitor, MonitorOff, StopCircle, Play, MessageSquare, Settings, Info, Sparkles, FileText, Lightbulb, Download, Image as ImageIcon, ChevronRight, ChevronDown, Trash2, X, Upload, FileUp } from 'lucide-react';
 import { useGeminiLive } from './lib/gemini-live';
 import { cn } from './lib/utils';
 import { GoogleGenAI, Type } from "@google/genai";
 import { toJpeg } from 'html-to-image';
-import { supabase } from './lib/supabase';
 
 const FMEA_EXAMPLES = [
   {
@@ -19,6 +18,74 @@ const FMEA_EXAMPLES = [
   {
     process: "การระบุตัวผู้ป่วย (Patient Identification)",
     failureMode: "เจ้าหน้าที่ไม่ได้ตรวจสอบป้ายข้อมือก่อนทำหัตถการ"
+  },
+  {
+    process: "การทำเครื่องหมายตำแหน่งผ่าตัด (Surgical Site Marking)",
+    failureMode: "ไม่มีการทำเครื่องหมายตำแหน่งผ่าตัดหรือทำผิดตำแหน่ง"
+  },
+  {
+    process: "การให้เลือด (Blood Transfusion)",
+    failureMode: "การให้เลือดผิดหมู่หรือผิดคนเนื่องจากขั้นตอนการตรวจสอบไม่ครบถ้วน"
+  },
+  {
+    process: "การเก็บสิ่งส่งตรวจทางห้องปฏิบัติการ (Lab Specimen Collection)",
+    failureMode: "การติดสลากชื่อผู้ป่วยผิดบนหลอดเก็บเลือด"
+  },
+  {
+    process: "การส่งต่อข้อมูลผู้ป่วย (Handover/SBAR)",
+    failureMode: "ข้อมูลวิกฤตตกหล่นระหว่างการส่งเวรพยาบาล"
+  },
+  {
+    process: "การบำรุงรักษาเครื่องมือแพทย์ (Medical Equipment Maintenance)",
+    failureMode: "เครื่องกระตุกหัวใจ (Defibrillator) แบตเตอรี่เสื่อมสภาพเมื่อต้องใช้งานฉุกเฉิน"
+  },
+  {
+    process: "การตอบสนองภาวะฉุกเฉิน (Code Blue Response)",
+    failureMode: "ทีมช่วยชีวิตมาถึงล่าช้าเนื่องจากระบบประกาศขัดข้อง"
+  },
+  {
+    process: "การป้องกันผู้ป่วยพลัดตกหกล้ม (Fall Prevention)",
+    failureMode: "ไม่ได้ยกไม้กั้นเตียงขึ้นในผู้ป่วยกลุ่มเสี่ยงสูง"
+  },
+  {
+    process: "การควบคุมการติดเชื้อ (Infection Control)",
+    failureMode: "เครื่องมือผ่าตัดไม่ผ่านการทำให้ปราศจากเชื้ออย่างสมบูรณ์"
+  },
+  {
+    process: "การรายงานผลทางรังสีวิทยา (Radiology Reporting)",
+    failureMode: "ผลตรวจวิกฤต (Critical Value) ไม่ได้รับการแจ้งไปยังแพทย์เจ้าของไข้ทันที"
+  },
+  {
+    process: "การจัดยาในห้องยา (Pharmacy Dispensing)",
+    failureMode: "การหยิบยาผิดเนื่องจากยาที่มีชื่อพ้องมองคล้าย (LASA)"
+  },
+  {
+    process: "การเคลื่อนย้ายผู้ป่วย (Patient Transport)",
+    failureMode: "ออกซิเจนหมดระหว่างการเคลื่อนย้ายผู้ป่วยวิกฤตไปทำ CT Scan"
+  },
+  {
+    process: "บริการอาหารผู้ป่วย (Dietary Services)",
+    failureMode: "ผู้ป่วยที่มีประวัติแพ้อาหารได้รับอาหารที่มีส่วนประกอบที่แพ้"
+  },
+  {
+    process: "การบันทึกเวชระเบียน (Medical Record Documentation)",
+    failureMode: "ข้อมูลการแพ้ยาไม่ได้รับการบันทึกในระบบคอมพิวเตอร์"
+  },
+  {
+    process: "การเฝ้าระวังผ่านจอมอนิเตอร์ (Telemetry Monitoring)",
+    failureMode: "พยาบาลไม่ได้ยินเสียงเตือน (Alarm Fatigue) เมื่อผู้ป่วยเกิดภาวะหัวใจเต้นผิดจังหวะ"
+  },
+  {
+    process: "การดูแลแผลกดทับ (Wound Care)",
+    failureMode: "ผู้ป่วยเกิดแผลกดทับระดับ 3 เนื่องจากไม่ได้พลิกตัวตามรอบเวลา"
+  },
+  {
+    process: "การให้ยาเคมีบำบัด (Chemotherapy Administration)",
+    failureMode: "ความคลาดเคลื่อนในการคำนวณขนาดยาตามพื้นที่ผิวร่างกาย"
+  },
+  {
+    process: "ความปลอดภัยในหอผู้ป่วยเด็กอ่อน (Newborn Security)",
+    failureMode: "การตรวจสอบป้ายชื่อแม่และเด็กไม่ตรงกันก่อนส่งมอบเด็ก"
   }
 ];
 
@@ -61,8 +128,6 @@ export default function App() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
   const [showAssistant, setShowAssistant] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
   
   const transcriptEndRef = useRef<HTMLDivElement>(null);
   const reportRef = useRef<HTMLDivElement>(null);
@@ -438,45 +503,6 @@ export default function App() {
     }
   };
 
-  const saveToSupabase = async () => {
-    if (!reportData) return;
-    
-    if (!supabase) {
-      setErrorMsg('กรุณาตั้งค่า VITE_SUPABASE_URL และ VITE_SUPABASE_ANON_KEY ใน Settings ก่อนใช้งาน');
-      return;
-    }
-
-    setIsSaving(true);
-    setErrorMsg('');
-    setSaveSuccess(false);
-
-    try {
-      // ชื่อไฟล์ที่ระบบตั้งให้ นำหน้าด้วย OUM-HA-
-      const documentName = `OUM-HA-FMEA-${new Date().getTime()}`;
-      
-      const { error } = await supabase
-        .from('oum_ha_fmea_reports')
-        .insert([
-          {
-            document_name: documentName,
-            process_name: processText,
-            failure_mode: failureModeText,
-            report_data: reportData
-          }
-        ]);
-
-      if (error) throw error;
-      
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
-    } catch (err: any) {
-      console.error("Error saving to Supabase:", err);
-      setErrorMsg(`เกิดข้อผิดพลาดในการบันทึกข้อมูลลงฐานข้อมูล: ${err.message}`);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   return (
     <div className="min-h-screen flex flex-col items-center p-4 md:p-8 bg-brand-off-white overflow-x-hidden">
       {/* Background Accents */}
@@ -577,59 +603,45 @@ export default function App() {
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 border-t border-brand-pale-pink/20">
+              <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
                 <button 
                   onClick={generateReport}
                   disabled={isGenerating || !processText || !failureModeText}
-                  className="bg-[#00875A] hover:bg-[#006644] text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-sm"
+                  className="bg-[#00875A] hover:bg-[#006644] text-white px-8 py-4 rounded-2xl font-bold transition-all flex items-center gap-3 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-base flex-1 sm:flex-none justify-center"
                 >
                   {isGenerating ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : (
-                    <FileText className="w-5 h-5" />
+                    <FileText className="w-6 h-6" />
                   )}
-                  สร้างรายงานการวิเคราะห์ (Generate Report)
+                  สร้างรายงาน (Generate Report)
                 </button>
                 <button 
                   onClick={handleRandomExample}
-                  className="bg-[#F5A623] hover:bg-[#D98E1C] text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg active:scale-95 text-sm"
+                  className="bg-[#F5A623] hover:bg-[#D98E1C] text-white px-6 py-4 rounded-2xl font-bold transition-all flex items-center gap-2 shadow-lg active:scale-95 text-base flex-1 sm:flex-none justify-center"
                 >
-                  <Lightbulb className="w-5 h-5" />
-                  ยกตัวอย่างเหตุการณ์ (Random Example)
+                  <Lightbulb className="w-6 h-6" />
+                  สุ่มตัวอย่าง (Random)
                 </button>
               </div>
 
-              <div className="flex items-center gap-2">
-                <button 
-                  onClick={saveToSupabase}
-                  disabled={!reportData || isSaving}
-                  className="bg-brand-grey-brown hover:bg-brand-dark-brown text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all shadow-md active:scale-95 disabled:opacity-50"
-                >
-                  {isSaving ? (
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : saveSuccess ? (
-                    <CheckCircle2 className="w-4 h-4 text-green-400" />
-                  ) : (
-                    <Database className="w-4 h-4" />
-                  )}
-                  {saveSuccess ? 'บันทึกสำเร็จ' : 'Save to DB'}
-                </button>
+              <div className="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-end">
                 <button 
                   onClick={exportToWord}
                   disabled={!reportData}
-                  className="bg-[#2B6DE5] hover:bg-[#1E4EB8] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all shadow-md active:scale-95 disabled:opacity-50"
+                  className="bg-[#2B6DE5] hover:bg-[#1E4EB8] text-white px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-md active:scale-95 disabled:opacity-50"
                 >
-                  <FileText className="w-4 h-4" />
-                  Export Word (.doc)
+                  <FileText className="w-5 h-5" />
+                  Word
                 </button>
                 <button 
                   onClick={exportToJPG}
                   disabled={!reportData}
-                  className="bg-[#9B4DCA] hover:bg-[#7B3DA1] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all shadow-md active:scale-95 disabled:opacity-50"
+                  className="bg-[#9B4DCA] hover:bg-[#7B3DA1] text-white px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-md active:scale-95 disabled:opacity-50"
                 >
-                  <ImageIcon className="w-4 h-4" />
-                  Export JPG
+                  <ImageIcon className="w-5 h-5" />
+                  JPG
                 </button>
               </div>
             </div>
