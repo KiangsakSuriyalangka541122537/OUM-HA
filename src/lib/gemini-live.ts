@@ -81,9 +81,9 @@ export function useGeminiLive() {
         config: {
           responseModalities: [Modality.AUDIO],
           speechConfig: {
-            voiceConfig: { prebuiltVoiceConfig: { voiceName: "Zephyr" } },
+            voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } },
           },
-          systemInstruction: "You are a helpful and friendly AI assistant. You can see the user's screen if they share it. Respond naturally and concisely.",
+          systemInstruction: "คุณคือผู้ช่วย AI ที่เป็นมิตร สุภาพ และมีบุคลิกที่น่ารัก อบอุ่น เหมือนมนุษย์จริงๆ คุณสามารถมองเห็นหน้าจอของผู้ใช้ได้หากพวกเขาแชร์หน้าจอ ให้ตอบโต้ด้วยน้ำเสียงที่นุ่มนวล เป็นกันเอง และใช้คำลงท้ายที่ดูสุภาพและน่ารัก (เช่น ค่ะ, นะคะ) ตอบอย่างเป็นธรรมชาติและกระชับ",
           inputAudioTranscription: {},
           outputAudioTranscription: {},
         },
