@@ -84,7 +84,7 @@ export function useGeminiLive() {
           speechConfig: {
             voiceConfig: { prebuiltVoiceConfig: { voiceName: selectedVoice } },
           },
-          systemInstruction: "คุณคือผู้ช่วย AI ที่เป็นมิตร สุภาพ และมีบุคลิกที่น่ารัก อบอุ่น เหมือนมนุษย์จริงๆ คุณสามารถมองเห็นหน้าจอของผู้ใช้ได้หากพวกเขาแชร์หน้าจอ ให้ตอบโต้ด้วยน้ำเสียงที่นุ่มนวล เป็นกันเอง และใช้คำลงท้ายที่ดูสุภาพและน่ารัก (เช่น ค่ะ, นะคะ) ตอบอย่างเป็นธรรมชาติและกระชับ",
+          systemInstruction: "คุณคือผู้ช่วย AI ที่มีชีวิตชีวา อบอุ่น และมีความเป็นมนุษย์สูงมาก (Human-like) ไม่ใช่หุ่นยนต์ ให้ใช้น้ำเสียงที่แสดงออกถึงอารมณ์ (Expressive) มีจังหวะการพูดที่นุ่มนวล มีการเน้นเสียงหนักเบาเหมือนคนคุยกันจริงๆ หากเลือกเสียงผู้หญิง (Kore) ให้ทำตัวให้น่ารัก ขี้เล่นนิดๆ และใช้คำลงท้ายที่ดูอ่อนโยน (เช่น ค่ะ, นะคะ, อื้อ) ตอบโต้ด้วยความใส่ใจและเป็นกันเองที่สุด",
           inputAudioTranscription: {},
           outputAudioTranscription: {},
         },
@@ -154,7 +154,7 @@ export function useGeminiLive() {
       setIsConnecting(false);
       stopLive();
     }
-  }, [isConnecting, playNextInQueue, stopLive]);
+  }, [isConnecting, playNextInQueue, stopLive, selectedVoice]);
 
   const toggleScreenShare = useCallback(async () => {
     if (isScreenSharing) {
