@@ -77,10 +77,13 @@ export default function App() {
   const extractFMEADetails = async (text: string) => {
     setIsExtracting(true);
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error("ไม่พบ GEMINI_API_KEY กรุณาตรวจสอบการตั้งค่าใน Settings");
+      // ตรวจสอบ API Key จากหลายแหล่ง (Vite define หรือ import.meta.env)
+      const apiKey = process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
+      
+      if (!apiKey || apiKey === "undefined" || apiKey === "") {
+        throw new Error("ไม่พบ GEMINI_API_KEY ในระบบ กรุณาตรวจสอบว่าได้ใส่ Key ในเมนู Secrets และตั้งชื่อว่า GEMINI_API_KEY หรือ VITE_GEMINI_API_KEY เรียบร้อยแล้ว");
       }
+      
       const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
@@ -136,10 +139,12 @@ export default function App() {
     setErrorMsg('');
 
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error("ไม่พบ GEMINI_API_KEY กรุณาตรวจสอบการตั้งค่าใน Settings");
+      const apiKey = process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
+      
+      if (!apiKey || apiKey === "undefined" || apiKey === "") {
+        throw new Error("ไม่พบ GEMINI_API_KEY ในระบบ กรุณาตรวจสอบว่าได้ใส่ Key ในเมนู Secrets และตั้งชื่อว่า GEMINI_API_KEY หรือ VITE_GEMINI_API_KEY เรียบร้อยแล้ว");
       }
+      
       const ai = new GoogleGenAI({ apiKey });
       
       const reportSchema = {
