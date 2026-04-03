@@ -158,6 +158,11 @@ export default function App() {
       apiKey = (import.meta.env.VITE_GEMINI_API_KEY as string) || "";
     }
 
+    // 4. Hardcoded fallback (User provided)
+    if (!apiKey || apiKey === "undefined" || apiKey === "") {
+      apiKey = "AIzaSyCbi3TmW5QuiNcBc2bba9vZTCB2yqWZo1A";
+    }
+
     return apiKey;
   };
 
@@ -168,7 +173,7 @@ export default function App() {
       
       if (!apiKey || apiKey === "undefined" || apiKey === "") {
         setShowManualInput(true);
-        throw new Error("ระบบยังมองไม่เห็น API Key อัตโนมัติครับ รบกวนลองใส่ Key เองที่ช่องด้านล่าง หรือกด Refresh อีกครั้งครับ");
+        throw new Error("ระบบยังมองไม่เห็น API Key ครับ รบกวนลองใส่ Key เองที่ช่องด้านล่าง หรือตรวจสอบการตั้งค่าใน Settings ครับ");
       }
       
       const ai = new GoogleGenAI({ apiKey });
@@ -230,7 +235,7 @@ export default function App() {
       
       if (!apiKey || apiKey === "undefined" || apiKey === "") {
         setShowManualInput(true);
-        throw new Error("ระบบยังมองไม่เห็น API Key อัตโนมัติครับ รบกวนลองใส่ Key เองที่ช่องด้านล่าง หรือกด Refresh อีกครั้งครับ");
+        throw new Error("ระบบยังมองไม่เห็น API Key ครับ รบกวนลองใส่ Key เองที่ช่องด้านล่าง หรือตรวจสอบการตั้งค่าใน Settings ครับ");
       }
       
       const ai = new GoogleGenAI({ apiKey });
@@ -681,7 +686,7 @@ export default function App() {
                           </button>
                         </div>
                         <p className="mt-2 text-[10px] text-gray-400 italic">
-                          * ระบบจะจำ Key นี้ไว้ในเบราว์เซอร์ของคุณ ไม่ต้องใส่ซ้ำในครั้งหน้าครับ
+                          * ระบบจะจดจำ Key นี้ไว้ให้คุณถาวร ไม่ต้องกรอกซ้ำในเครื่องอื่นครับ
                         </p>
                       </div>
                     )}
