@@ -358,7 +358,7 @@ export default function App() {
       };
 
       const response = await ai.models.generateContent({
-        model: "gemini-3.1-pro-preview",
+        model: "gemini-3-flash-preview",
         contents: `คุณคือผู้เชี่ยวชาญด้าน FMEA (Failure Mode and Effects Analysis) ในโรงพยาบาลระดับสากล
         กรุณาวิเคราะห์ข้อมูลต่อไปนี้และสร้างรายงานที่ครอบคลุมและเป็นมืออาชีพที่สุด:
         
@@ -381,6 +381,8 @@ export default function App() {
       if (errorMessage.includes("leaked")) {
         errorMessage = "API Key ของคุณถูกระงับเนื่องจากตรวจพบว่าหลุดสู่สาธารณะ (Leaked) ครับ กรุณาลบ Key เดิมทิ้งใน Google AI Studio แล้วสร้าง Key ใหม่มาใส่ในเมนู Secrets ครับ";
         setShowManualInput(true);
+      } else if (errorMessage.includes("quota") || errorMessage.includes("429")) {
+        errorMessage = "โควตาการใช้งาน API ของคุณเต็มแล้วครับ (Quota Exceeded) เนื่องจากคุณใช้แบบฟรี ระบบจึงจำกัดจำนวนครั้งต่อวัน/นาที แนะนำให้รอประมาณ 1 นาทีแล้วลองใหม่ หรือเปลี่ยนไปใช้ API Key อื่นครับ";
       }
       setErrorMsg(`เกิดข้อผิดพลาดในการสร้างรายงาน: ${errorMessage}`);
     } finally {
