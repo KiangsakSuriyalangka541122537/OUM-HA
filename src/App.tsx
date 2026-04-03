@@ -256,6 +256,8 @@ export default function App() {
       if (errorMessage.includes("leaked")) {
         errorMessage = "API Key ของคุณถูกระงับเนื่องจากตรวจพบว่าหลุดสู่สาธารณะ (Leaked) ครับ กรุณาลบ Key เดิมทิ้งใน Google AI Studio แล้วสร้าง Key ใหม่มาใส่ในเมนู Secrets ครับ";
         setShowManualInput(true);
+      } else if (errorMessage.includes("demand") || errorMessage.includes("503") || errorMessage.includes("UNAVAILABLE")) {
+        errorMessage = "ขณะนี้เซิร์ฟเวอร์ AI มีผู้ใช้งานจำนวนมาก (High Demand) ครับ รบกวนรอสักครู่ (ประมาณ 10-30 วินาที) แล้วกดปุ่มลองใหม่อีกครั้งนะครับ";
       }
       alert(`ไม่สามารถแยกข้อมูลจากเอกสารได้: ${errorMessage}`);
     } finally {
@@ -383,6 +385,8 @@ export default function App() {
         setShowManualInput(true);
       } else if (errorMessage.includes("quota") || errorMessage.includes("429")) {
         errorMessage = "โควตาการใช้งาน API ของคุณเต็มแล้วครับ (Quota Exceeded) เนื่องจากคุณใช้แบบฟรี ระบบจึงจำกัดจำนวนครั้งต่อวัน/นาที แนะนำให้รอประมาณ 1 นาทีแล้วลองใหม่ หรือเปลี่ยนไปใช้ API Key อื่นครับ";
+      } else if (errorMessage.includes("demand") || errorMessage.includes("503") || errorMessage.includes("UNAVAILABLE")) {
+        errorMessage = "ขณะนี้เซิร์ฟเวอร์ AI มีผู้ใช้งานจำนวนมาก (High Demand) ครับ รบกวนรอสักครู่ (ประมาณ 10-30 วินาที) แล้วกดปุ่มลองใหม่อีกครั้งนะครับ";
       }
       setErrorMsg(`เกิดข้อผิดพลาดในการสร้างรายงาน: ${errorMessage}`);
     } finally {
