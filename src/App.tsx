@@ -158,11 +158,6 @@ export default function App() {
       apiKey = (import.meta.env.VITE_GEMINI_API_KEY as string) || "";
     }
 
-    // 4. Hardcoded fallback (User provided)
-    if (!apiKey || apiKey === "undefined" || apiKey === "") {
-      apiKey = "AIzaSyCbi3TmW5QuiNcBc2bba9vZTCB2yqWZo1A";
-    }
-
     return apiKey;
   };
 
@@ -662,31 +657,36 @@ export default function App() {
                       <div className="mt-3 p-4 bg-white rounded-xl border border-red-200 shadow-inner">
                         <p className="font-bold mb-2 text-red-700 flex items-center gap-2">
                           <Settings className="w-4 h-4" />
-                          วิธีแก้ปัญหาด่วน: วาง API Key ของคุณที่นี่
+                          วิธีแก้ปัญหา: ตั้งค่า API Key ใหม่
                         </p>
-                        <div className="flex gap-2">
-                          <input 
-                            type="password" 
-                            placeholder="วาง API Key (ขึ้นต้นด้วย AIza...)" 
-                            className="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-rose-deep/30 transition-all"
-                            value={manualApiKey}
-                            onChange={(e) => {
-                              setManualApiKey(e.target.value);
-                              localStorage.setItem('manual_gemini_api_key', e.target.value);
-                            }}
-                          />
-                          <button 
-                            onClick={() => {
-                              setErrorMsg('');
-                              setShowManualInput(false);
-                            }}
-                            className="px-4 py-2 bg-brand-rose-deep text-white rounded-lg font-bold hover:bg-brand-rose-brown transition-all shadow-md active:scale-95"
-                          >
-                            ตกลง
-                          </button>
+                        <div className="flex flex-col gap-3">
+                          <p className="text-xs text-red-600">
+                            API Key เดิมถูกระงับเนื่องจากความปลอดภัย (Leaked) เพราะถูกแชร์ในแชท/โค้ด กรุณาสร้าง Key ใหม่ที่ <a href="https://aistudio.google.com/app/apikey" target="_blank" className="underline font-bold">Google AI Studio</a> และนำมาใส่ที่นี่ครับ
+                          </p>
+                          <div className="flex gap-2">
+                            <input 
+                              type="password" 
+                              placeholder="วาง API Key ใหม่ (AIza...)" 
+                              className="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-rose-deep/30 transition-all"
+                              value={manualApiKey}
+                              onChange={(e) => {
+                                setManualApiKey(e.target.value);
+                                localStorage.setItem('manual_gemini_api_key', e.target.value);
+                              }}
+                            />
+                            <button 
+                              onClick={() => {
+                                setErrorMsg('');
+                                setShowManualInput(false);
+                              }}
+                              className="px-4 py-2 bg-brand-rose-deep text-white rounded-lg font-bold hover:bg-brand-rose-brown transition-all shadow-md active:scale-95"
+                            >
+                              บันทึก
+                            </button>
+                          </div>
                         </div>
                         <p className="mt-2 text-[10px] text-gray-400 italic">
-                          * ระบบจะจดจำ Key นี้ไว้ให้คุณถาวร ไม่ต้องกรอกซ้ำในเครื่องอื่นครับ
+                          * แนะนำ: นำ Key ใหม่ไปใส่ในเมนู Settings (รูปฟันเฟืองด้านบน) ในช่อง VITE_GEMINI_API_KEY เพื่อให้ใช้งานได้ถาวรและปลอดภัยครับ
                         </p>
                       </div>
                     )}
