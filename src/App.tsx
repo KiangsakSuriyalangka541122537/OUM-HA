@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mic, MicOff, Monitor, MonitorOff, StopCircle, Play, MessageSquare, Settings, Info, Sparkles, FileText, Lightbulb, Download, Image as ImageIcon, ChevronRight, ChevronDown, Trash2, X, Upload, FileUp } from 'lucide-react';
+import { Mic, MicOff, Monitor, MonitorOff, StopCircle, Play, MessageSquare, Settings, Info, Sparkles, FileText, Lightbulb, Download, Image as ImageIcon, ChevronRight, ChevronDown, Trash2, X, Upload, FileUp, Save, History, Clock } from 'lucide-react';
 import { useGeminiLive } from './lib/gemini-live';
 import { cn } from './lib/utils';
 import { GoogleGenAI, Type } from "@google/genai";
@@ -105,6 +105,14 @@ interface ReportData {
   references: string[];
 }
 
+interface HistoryItem {
+  id: string;
+  timestamp: number;
+  process: string;
+  failureMode: string;
+  reportData: ReportData;
+}
+
 export default function App() {
   const {
     isConnected,
@@ -128,6 +136,21 @@ export default function App() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
   const [showAssistant, setShowAssistant] = useState(false);
+  const [history, setHistory] = useState<HistoryItem[]>(() => {
+    const saved = localStorage.getItem('fmea_history');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [showHistory, setShowHistory] = useState(false);
+  const [apiKeyStatus, setApiKeyStatus] = useState<'connected' | 'missing'>('missing');
+
+  useEffect(() => {
+    const key = getApiKey();
+    if (key && key.startsWith('AIza')) {
+      setApiKeyStatus('connected');
+    } else {
+      setApiKeyStatus('missing');
+    }
+  }, [manualApiKey]);
   
   const transcriptEndRef = useRef<HTMLDivElement>(null);
   const reportRef = useRef<HTMLDivElement>(null);
@@ -141,6 +164,34 @@ export default function App() {
     const random = FMEA_EXAMPLES[Math.floor(Math.random() * FMEA_EXAMPLES.length)];
     setProcessText(random.process);
     setFailureModeText(random.failureMode);
+  };
+
+  const saveToHistory = () => {
+    if (!reportData) return;
+    const newItem: HistoryItem = {
+      id: crypto.randomUUID(),
+      timestamp: Date.now(),
+      process: processText,
+      failureMode: failureModeText,
+      reportData: reportData
+    };
+    const updatedHistory = [newItem, ...history];
+    setHistory(updatedHistory);
+    localStorage.setItem('fmea_history', JSON.stringify(updatedHistory));
+    alert('บันทึกรายงานลงในประวัติเรียบร้อยแล้วครับ');
+  };
+
+  const loadFromHistory = (item: HistoryItem) => {
+    setProcessText(item.process);
+    setFailureModeText(item.failureMode);
+    setReportData(item.reportData);
+    setShowHistory(false);
+  };
+
+  const deleteFromHistory = (id: string) => {
+    const updatedHistory = history.filter(item => item.id !== id);
+    setHistory(updatedHistory);
+    localStorage.setItem('fmea_history', JSON.stringify(updatedHistory));
   };
 
   const getApiKey = () => {
@@ -518,7 +569,16 @@ export default function App() {
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-brand-dark-brown">PGH FMEA Navigator</h1>
-            <p className="text-sm text-brand-rose-brown font-medium">Turning Risk Analysis into Preventive Action.</p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-brand-rose-brown font-medium">Turning Risk Analysis into Preventive Action.</p>
+              <div className={cn(
+                "flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold transition-all",
+                apiKeyStatus === 'connected' ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+              )}>
+                <div className={cn("w-1.5 h-1.5 rounded-full", apiKeyStatus === 'connected' ? "bg-green-500 animate-pulse" : "bg-red-500")} />
+                API Key: {apiKeyStatus === 'connected' ? "Connected" : "Not Found"}
+              </div>
+            </div>
           </div>
         </div>
         
@@ -530,6 +590,13 @@ export default function App() {
             className="hidden" 
             accept=".txt,.md,.doc,.docx"
           />
+          <button 
+            onClick={() => setShowHistory(true)}
+            className="px-4 py-2 bg-brand-cream text-brand-rose-brown rounded-full text-sm font-bold flex items-center gap-2 hover:bg-brand-pale-pink transition-all"
+          >
+            <History className="w-4 h-4" />
+            ประวัติ ({history.length})
+          </button>
           <button 
             onClick={() => fileInputRef.current?.click()}
             disabled={isExtracting}
@@ -705,6 +772,14 @@ export default function App() {
                 className="bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden relative"
               >
                 <div className="absolute top-4 right-4 z-10 flex gap-2">
+                  <button 
+                    onClick={saveToHistory}
+                    className="p-2 bg-white/80 hover:bg-green-50 text-gray-400 hover:text-green-500 rounded-full transition-colors shadow-sm backdrop-blur-sm border border-gray-100 flex items-center gap-2 px-3"
+                    title="บันทึกลงประวัติ"
+                  >
+                    <Save className="w-5 h-5" />
+                    <span className="text-xs font-bold">บันทึก</span>
+                  </button>
                   <button 
                     onClick={() => setReportData(null)}
                     className="p-2 bg-white/80 hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-full transition-colors shadow-sm backdrop-blur-sm border border-gray-100"
@@ -1038,6 +1113,99 @@ export default function App() {
           )}
         </AnimatePresence>
       </main>
+
+      {/* History Modal */}
+      <AnimatePresence>
+        {showHistory && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+            onClick={() => setShowHistory(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-brand-cream/30">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-brand-rose-muted/20 rounded-lg">
+                    <History className="w-5 h-5 text-brand-rose-deep" />
+                  </div>
+                  <h2 className="text-xl font-bold text-brand-dark-brown">ประวัติรายงาน FMEA</h2>
+                </div>
+                <button 
+                  onClick={() => setShowHistory(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-400" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-6">
+                {history.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Clock className="w-8 h-8 text-gray-300" />
+                    </div>
+                    <p className="text-gray-500">ยังไม่มีประวัติการบันทึกรายงาน</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-4">
+                    {history.map((item) => (
+                      <div 
+                        key={item.id}
+                        className="group p-4 rounded-2xl border border-gray-100 hover:border-brand-rose-muted hover:bg-brand-cream/20 transition-all cursor-pointer relative"
+                        onClick={() => loadFromHistory(item)}
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="font-bold text-brand-dark-brown line-clamp-1 pr-8">
+                            {item.reportData.title}
+                          </h4>
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteFromHistory(item.id);
+                            }}
+                            className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {new Date(item.timestamp).toLocaleDateString('th-TH', { 
+                              day: 'numeric', 
+                              month: 'short', 
+                              year: '2-digit',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </span>
+                          <span className="line-clamp-1 italic">
+                            {item.process}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              <div className="p-4 bg-gray-50 text-center">
+                <p className="text-[10px] text-gray-400 italic">
+                  * ข้อมูลประวัติถูกบันทึกไว้ในเบราว์เซอร์นี้เท่านั้น
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <footer className="mt-12 text-brand-rose-brown/50 text-[10px] font-medium uppercase tracking-[0.2em] z-10 text-center">
         PGH AI-Assisted FMEA Navigator • Turning Risk Analysis into Preventive Action • 2026
