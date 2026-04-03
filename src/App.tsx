@@ -252,7 +252,12 @@ export default function App() {
       setFailureModeText(data.failureMode);
     } catch (error: any) {
       console.error("Extraction Error:", error);
-      alert(`ไม่สามารถแยกข้อมูลจากเอกสารได้: ${error.message || String(error)}`);
+      let errorMessage = error.message || String(error);
+      if (errorMessage.includes("leaked")) {
+        errorMessage = "API Key ของคุณถูกระงับเนื่องจากตรวจพบว่าหลุดสู่สาธารณะ (Leaked) ครับ กรุณาลบ Key เดิมทิ้งใน Google AI Studio แล้วสร้าง Key ใหม่มาใส่ในเมนู Secrets ครับ";
+        setShowManualInput(true);
+      }
+      alert(`ไม่สามารถแยกข้อมูลจากเอกสารได้: ${errorMessage}`);
     } finally {
       setIsExtracting(false);
     }
@@ -372,7 +377,12 @@ export default function App() {
       setReportData(data);
     } catch (error: any) {
       console.error("Report Generation Error:", error);
-      setErrorMsg(`เกิดข้อผิดพลาดในการสร้างรายงาน: ${error.message || String(error)}`);
+      let errorMessage = error.message || String(error);
+      if (errorMessage.includes("leaked")) {
+        errorMessage = "API Key ของคุณถูกระงับเนื่องจากตรวจพบว่าหลุดสู่สาธารณะ (Leaked) ครับ กรุณาลบ Key เดิมทิ้งใน Google AI Studio แล้วสร้าง Key ใหม่มาใส่ในเมนู Secrets ครับ";
+        setShowManualInput(true);
+      }
+      setErrorMsg(`เกิดข้อผิดพลาดในการสร้างรายงาน: ${errorMessage}`);
     } finally {
       setIsGenerating(false);
     }
@@ -749,6 +759,16 @@ export default function App() {
                               className="px-4 py-2 bg-brand-rose-deep text-white rounded-lg font-bold hover:bg-brand-rose-brown transition-all shadow-md active:scale-95"
                             >
                               บันทึก
+                            </button>
+                            <button 
+                              onClick={() => {
+                                setManualApiKey('');
+                                localStorage.removeItem('manual_gemini_api_key');
+                                alert('ล้างข้อมูล Key เรียบร้อยแล้วครับ กรุณาใส่ Key ใหม่');
+                              }}
+                              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-bold hover:bg-gray-300 transition-all active:scale-95"
+                            >
+                              ล้าง
                             </button>
                           </div>
                         </div>
